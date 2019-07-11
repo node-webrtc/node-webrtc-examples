@@ -76,7 +76,6 @@ function beforeAnswer(peerConnection) {
   }
 
   function onDataChannel({ channel }) {
-    console.log('New data channel :', channel);
     if (channel.label !== 'datachannel-buffer-limits') {
       return;
     }
