@@ -67,6 +67,8 @@ function beforeAnswer(peerConnection) {
       downloadLabel.innerHTML = text;
       console.log(text);
 
+      peerConnection.close();
+      closeDatachannel();
       resetButtons();
 
       return;
@@ -79,6 +81,9 @@ function beforeAnswer(peerConnection) {
     if (channel.label !== 'datachannel-buffer-limits') {
       return;
     }
+
+    uploadLabel.innerHTML = 'Upload &emsp;&emsp;-- ...';
+    downloadLabel.innerHTML = 'Download -- ...';
 
     // Slightly delaying everything because Firefox needs it
     setTimeout(() => {
@@ -108,6 +113,7 @@ function beforeAnswer(peerConnection) {
       } catch(e) {
         console.log('Failed to send data over dataChannel :', e);
         peerConnection.close();
+        closeDatachannel();
         resetButtons();
         alert(e);
       }
@@ -124,16 +130,6 @@ function beforeAnswer(peerConnection) {
         break;
     }
   }
-
-  // NOTE(mroberts): This is a hack so that we can get a callback when the
-  // RTCPeerConnection is closed. In the future, we can subscribe to
-  // "connectionstatechange" events.
-  const { close } = peerConnection;
-  peerConnection.close = function() {
-    closeDatachannel();
-
-    return close.apply(this, arguments);
-  };
 
   peerConnection.addEventListener('connectionstatechange', onConnectionStateChange);
   peerConnection.addEventListener('datachannel', onDataChannel);
