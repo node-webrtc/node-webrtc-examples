@@ -15,7 +15,7 @@ This project presents a few example applications using node-webrtc.
 - [video-compositing](examples/video-compositing): uses RTCVideoSink,
   [node-canvas](https://github.com/Automattic/node-canvas), and RTCVideoSource
   to draw spinning text on top of an incoming video.
-- [Stream recording](https://github.com/Automattic/stream-record) using ffmpeg and RTCVideoSink
+- [Stream recording](examples/stream-record) using ffmpeg and RTCVideoSink
 
 Usage
 -----
