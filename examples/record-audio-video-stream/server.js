@@ -1,12 +1,12 @@
 'use strict';
 
 const { PassThrough } = require('stream')
+const fs = require('fs')
 
 const { RTCAudioSink, RTCVideoSink } = require('wrtc').nonstandard;
 
 const ffmpeg = require('fluent-ffmpeg')
 const { StreamInput } = require('fluent-ffmpeg-multistream')
-const fs = require('fs')
 
 const VIDEO_OUTPUT_SIZE = '320x240'
 const VIDEO_OUTPUT_FILE = './recording.mp4'
@@ -22,9 +22,9 @@ function beforeOffer(peerConnection) {
 
   const streams = [];
 
-  videoSink.addEventListener('frame', function({ frame: { width, height, data }}){
+  videoSink.addEventListener('frame', ({ frame: { width, height, data }}) => {
     const size = width + 'x' + height;
-    if(!streams[0] || (streams[0] && streams[0].size !== size)) {
+    if (!streams[0] || (streams[0] && streams[0].size !== size)) {
       UID++;
 
       const stream = {
@@ -34,24 +34,24 @@ function beforeOffer(peerConnection) {
         audio: new PassThrough()
       };
 
-      const onAudioData = function({ samples: { buffer } }) {
-        if(!stream.end) {
+      const onAudioData = ({ samples: { buffer } }) => {
+        if (!stream.end) {
           stream.audio.push(Buffer.from(buffer));
         }
       };
 
-      audioSink.addEventListener('data', onAudioData)
+      audioSink.addEventListener('data', onAudioData);
 
-      stream.audio.on('end', ()=>{
-        audioSink.removeEventListener('data', onAudioData)
-      })
+      stream.audio.on('end', () => {
+        audioSink.removeEventListener('data', onAudioData);
+      });
 
-      streams.unshift(stream)
+      streams.unshift(stream);
 
       streams.forEach(item=>{
-        if(item !== stream && !item.end) {
+        if (item !== stream && !item.end) {
           item.end = true;
-          if(item.audio) {
+          if (item.audio) {
             item.audio.end();
           }
           item.video.end();
@@ -80,13 +80,13 @@ function beforeOffer(peerConnection) {
           console.log('Stop recording >> ', stream.recordPath)
         })
         .size(VIDEO_OUTPUT_SIZE)
-        .output(stream.recordPath)
+        .output(stream.recordPath);
 
-        stream.proc.run()
+        stream.proc.run();
     }
 
     streams[0].video.push(Buffer.from(data));
-  })
+  });
 
   const { close } = peerConnection;
   peerConnection.close = function() {
@@ -94,20 +94,20 @@ function beforeOffer(peerConnection) {
     videoSink.stop();
 
     streams.forEach(({ audio, video, end, proc, recordPath })=>{
-      if(!end) {
-        if(audio) {
+      if (!end) {
+        if (audio) {
           audio.end();
         }
         video.end();
       }
-    })
+    });
 
     let totalEnd = 0;
     const timer = setInterval(()=>{
       streams.forEach(stream=>{
-        if(stream.recordEnd) {
+        if (stream.recordEnd) {
           totalEnd++;
-          if(totalEnd  === streams.length) {
+          if (totalEnd === streams.length) {
             clearTimeout(timer);
 
             const mergeProc = ffmpeg()
@@ -123,15 +123,15 @@ function beforeOffer(peerConnection) {
         
             streams.forEach(({ recordPath })=>{
               mergeProc.addInput(recordPath)
-            })
+            });
         
             mergeProc
               .output(VIDEO_OUTPUT_FILE)
               .run();
           }
         }
-      })
-    },1000)
+      });
+    }, 1000)
 
     return close.apply(this, arguments);
   }

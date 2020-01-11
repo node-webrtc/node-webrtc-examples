@@ -31,7 +31,7 @@ async function beforeAnswer(peerConnection) {
   };
 }
 
-createExample('stream-record', description, { beforeAnswer });
+createExample('record-audio-video-stream', description, { beforeAnswer });
 
 const videos = document.createElement('div');
 videos.className = 'grid';
