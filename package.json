@@ -28,7 +28,7 @@
     "fluent-ffmpeg-multistream": "^1.0.0",
     "node-fetch": "^2.3.0",
     "uuid": "^3.3.2",
-    "wrtc": "^0.4.1"
+    "wrtc": "^0.4.3"
   },
   "devDependencies": {
     "eslint": "^5.15.1",
