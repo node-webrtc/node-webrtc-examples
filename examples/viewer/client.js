@@ -2,7 +2,7 @@
 
 const createExample = require('../../lib/browser/example');
 
-const description = 'Watch a broadcast. You should have already started the \
+const description = 'View a broadcast. You should have already started the \
 broadcast example. Although you can prototype such a system with  node-webrtc, \
 you should consider using an \
 <a href="https://webrtcglossary.com/sfu/" target="_blank">SFU</a>.';

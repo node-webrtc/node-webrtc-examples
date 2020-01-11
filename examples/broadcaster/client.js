@@ -3,8 +3,8 @@
 const createExample = require('../../lib/browser/example');
 
 const description = 'Start a broadcast. Your stream will be forwarded to \
-multiple "watchers". Although you can prototype such a system with \
-node-webrtc, you should consider using an \
+multiple viewers. Although you can prototype such a system with node-webrtc, \
+you should consider using an \
 <a href="https://webrtcglossary.com/sfu/" target="_blank">SFU</a>.';
 
 const localVideo = document.createElement('video');
