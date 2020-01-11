@@ -16,7 +16,7 @@ This project presents a few example applications using node-webrtc.
   [node-canvas](https://github.com/Automattic/node-canvas), and RTCVideoSource
   to draw spinning text on top of an incoming video.
 - [Stream recording](examples/stream-record) using ffmpeg and RTCVideoSink
-- SFU example with one [broadcaster](examples/sfu-broadcast) which forward stream to many [clients](examples/sfu-watch)
+- Broadcast example with one ["broadcaster"](examples/broadcaster) forwarding to many ["viewers"](examples/viewers)
 
 Usage
 -----

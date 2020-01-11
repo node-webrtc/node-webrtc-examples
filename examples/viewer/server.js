@@ -1,21 +1,25 @@
 'use strict';
 
-const { event } = require('../sfu-broadcast/server')
+const { broadcaster } = require('../broadcaster/server')
 
 function beforeOffer(peerConnection) {
   const audioTransceiver = peerConnection.addTransceiver('audio');
   const videoTransceiver = peerConnection.addTransceiver('video');
   
-  const onNewBroadcast = ({ audioTrack, videoTrack })=>{
+  function onNewBroadcast({ audioTrack, videoTrack }) {
     audioTransceiver.sender.replaceTrack(audioTrack),
     videoTransceiver.sender.replaceTrack(videoTrack) 
-  };
+  }
 
-  event.on('newBroadcast', onNewBroadcast)
+  broadcaster.on('newBroadcast', onNewBroadcast)
+
+  if (broadcaster.audioTrack && broadcaster.videoTrack) {
+    onNewBroadcast(broadcaster);
+  }
 
   const { close } = peerConnection;
   peerConnection.close = function() {
-    event.removeListener('newBroadcast', onNewBroadcast);
+    broadcaster.removeListener('newBroadcast', onNewBroadcast);
     return close.apply(this, arguments);
   }
 }

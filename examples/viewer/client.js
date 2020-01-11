@@ -2,8 +2,10 @@
 
 const createExample = require('../../lib/browser/example');
 
-const description = 'Example of <a href="https://webrtcglossary.com/sfu/" target="_blank">SFU</a> <br/><br/>\
-Start receive sfu-broadcaster stream.';
+const description = 'Watch a broadcast. You should have already started the \
+broadcast example. Although you can prototype such a system with  node-webrtc, \
+you should consider using an \
+<a href="https://webrtcglossary.com/sfu/" target="_blank">SFU</a>.';
 
 const remoteVideo = document.createElement('video');
 remoteVideo.autoplay = true;
@@ -22,7 +24,7 @@ async function beforeAnswer(peerConnection) {
   };
 }
 
-createExample('sfu-watch', description, { beforeAnswer });
+createExample('viewer', description, { beforeAnswer });
 
 const videos = document.createElement('div');
 videos.className = 'grid';

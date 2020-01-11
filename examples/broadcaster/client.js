@@ -2,8 +2,10 @@
 
 const createExample = require('../../lib/browser/example');
 
-const description = 'Example of <a href="https://webrtcglossary.com/sfu/" target="_blank">SFU</a> <br/><br/>\
-Start broadcast and then your stream will be forward using  RTCAudioSink, RTCVideoSink, RTCAudioSource, RTCVideoSource';
+const description = 'Start a broadcast. Your stream will be forwarded to \
+multiple "watchers". Although you can prototype such a system with \
+node-webrtc, you should consider using an \
+<a href="https://webrtcglossary.com/sfu/" target="_blank">SFU</a>.';
 
 const localVideo = document.createElement('video');
 localVideo.autoplay = true;
@@ -32,7 +34,7 @@ async function beforeAnswer(peerConnection) {
   };
 }
 
-createExample('sfu-broadcast', description, { beforeAnswer });
+createExample('broadcaster', description, { beforeAnswer });
 
 const videos = document.createElement('div');
 videos.className = 'grid';
