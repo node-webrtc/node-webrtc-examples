@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js examples lib test",
-    "start": "node index.js",
+    "start": "node server.js",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "tape 'test/unit/**/*.js'",
     "test:integration": "tape 'test/integration/**/*.js'"
