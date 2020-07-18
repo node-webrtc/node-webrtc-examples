@@ -25,7 +25,7 @@ function beforeOffer(peerConnection) {
 
   // TODO(mroberts): Is pixelFormat really necessary?
   const canvas = createCanvas(width, height);
-  const context = canvas.getContext('2d', { pixelFormat: 'RGBA24' });
+  const context = canvas.getContext('2d');
   context.fillStyle = 'white';
   context.fillRect(0, 0, width, height);
 
@@ -34,7 +34,7 @@ function beforeOffer(peerConnection) {
   const interval = setInterval(() => {
     if (lastFrame) {
       const lastFrameCanvas = createCanvas(lastFrame.width,  lastFrame.height);
-      const lastFrameContext = lastFrameCanvas.getContext('2d', { pixelFormat: 'RGBA24' });
+      const lastFrameContext = lastFrameCanvas.getContext('2d');
 
       const rgba = new Uint8ClampedArray(lastFrame.width *  lastFrame.height * 4);
       const rgbaFrame = createImageData(rgba, lastFrame.width, lastFrame.height);
