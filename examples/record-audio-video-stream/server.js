@@ -5,7 +5,9 @@ const fs = require('fs')
 
 const { RTCAudioSink, RTCVideoSink } = require('wrtc').nonstandard;
 
-const ffmpeg = require('fluent-ffmpeg')
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
+const ffmpeg = require('fluent-ffmpeg');
+ffmpeg.setFfmpegPath(ffmpegPath);
 const { StreamInput } = require('fluent-ffmpeg-multistream')
 
 const VIDEO_OUTPUT_SIZE = '320x240'
