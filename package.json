@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js examples lib test",
-    "start": "node index.js",
+    "start": "npx forever start server.js",
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "tape 'test/unit/**/*.js'",
     "test:integration": "tape 'test/integration/**/*.js'"
@@ -26,6 +26,7 @@
     "express": "^4.16.4",
     "fluent-ffmpeg": "^2.1.2",
     "fluent-ffmpeg-multistream": "^1.0.0",
+    "forever": "^3.0.0",
     "node-fetch": "^2.3.0",
     "uuid": "^3.3.2",
     "wrtc": "^0.4.3"
