@@ -13,7 +13,7 @@ const { StreamInput } = require('fluent-ffmpeg-multistream')
 const VIDEO_OUTPUT_SIZE = '320x240'
 const VIDEO_OUTPUT_FILE = './recording.mp4'
 
-let UID = 0;
+let STREAM_ID = 0;
 
 function beforeOffer(peerConnection) {
   const audioTransceiver = peerConnection.addTransceiver('audio');
@@ -22,22 +22,37 @@ function beforeOffer(peerConnection) {
   const audioSink = new RTCAudioSink(audioTransceiver.receiver.track);
   const videoSink = new RTCVideoSink(videoTransceiver.receiver.track);
 
-  const streams = [];
+  let idleSaveTimeout = null;
+  let recordings = []
+  let stream;
 
   videoSink.addEventListener('frame', ({ frame: { width, height, data }}) => {
     const size = width + 'x' + height;
-    if (!streams[0] || (streams[0] && streams[0].size !== size)) {
-      UID++;
+    if (!stream || (stream && stream.size !== size)) {
+      if(idleSaveTimeout){
+         clearTimeout(idleSaveTimeout);
+      }
+      if (stream) {
+        // Disconnect previous stream:
+        if (stream.audio) {
+          stream.audio.end();
+        }
+        stream.video.end();
+        recordings.push(stream.recordPath);
+      }
 
-      const stream = {
-        recordPath: './recording-' + size + '-' + UID + '.mp4',
+      // Create a new stream:
+      stream = {
+        id: STREAM_ID++,
+        recordPath: './recording-' + size + '-' + STREAM_ID + '.mp4',
         size,
         video: new PassThrough(),
         audio: new PassThrough()
       };
 
       const onAudioData = ({ samples: { buffer } }) => {
-        if (!stream.end) {
+        // If we've connected a new stream, then stream.id !== STREAM_ID
+        if (stream.id === STREAM_ID) {
           stream.audio.push(Buffer.from(buffer));
         }
       };
@@ -47,18 +62,6 @@ function beforeOffer(peerConnection) {
       stream.audio.on('end', () => {
         audioSink.removeEventListener('data', onAudioData);
       });
-
-      streams.unshift(stream);
-
-      streams.forEach(item=>{
-        if (item !== stream && !item.end) {
-          item.end = true;
-          if (item.audio) {
-            item.audio.end();
-          }
-          item.video.end();
-        }
-      })
   
       stream.proc = ffmpeg()
         .addInput((new StreamInput(stream.video)).url)
@@ -78,7 +81,6 @@ function beforeOffer(peerConnection) {
           console.log('Start recording >> ', stream.recordPath)
         })
         .on('end', ()=>{
-          stream.recordEnd = true;
           console.log('Stop recording >> ', stream.recordPath)
         })
         .size(VIDEO_OUTPUT_SIZE)
@@ -87,52 +89,43 @@ function beforeOffer(peerConnection) {
         stream.proc.run();
     }
 
-    streams[0].video.push(Buffer.from(data));
+    stream.video.push(Buffer.from(data));
   });
 
   const { close } = peerConnection;
   peerConnection.close = function() {
     audioSink.stop();
     videoSink.stop();
-
-    streams.forEach(({ audio, video, end, proc, recordPath })=>{
-      if (!end) {
-        if (audio) {
-          audio.end();
-        }
-        video.end();
+   
+    // This should always be true, but just incase:
+    if (stream && stream.id === STREAM_ID) {
+      recordings.push(stream.recordPath);
+      if (stream.audio) {
+          stream.audio.end();
       }
-    });
+      stream.video.end();
+    }
 
-    let totalEnd = 0;
-    const timer = setInterval(()=>{
-      streams.forEach(stream=>{
-        if (stream.recordEnd) {
-          totalEnd++;
-          if (totalEnd === streams.length) {
-            clearTimeout(timer);
-
-            const mergeProc = ffmpeg()
-              .on('start', ()=>{
-                console.log('Start merging into ' + VIDEO_OUTPUT_FILE);
-              })
-              .on('end', ()=>{
-                streams.forEach(({ recordPath })=>{
-                  fs.unlinkSync(recordPath);
-                })
-                console.log('Merge end. You can play ' + VIDEO_OUTPUT_FILE);
-              });
+    idleSaveTimeout = setTimeout(() => {
+      const mergeProc = ffmpeg()
+        .on('start', ()=>{
+          console.log('Start merging into ' + VIDEO_OUTPUT_FILE);
+        })
+        .on('end', ()=>{
+          recordings.forEach((recordPath)=>{
+            fs.unlinkSync(recordPath);
+          })
+          recordings = [];
+          console.log('Merge end. You can play ' + VIDEO_OUTPUT_FILE);
+        });
         
-            streams.forEach(({ recordPath })=>{
-              mergeProc.addInput(recordPath)
-            });
-        
-            mergeProc
-              .output(VIDEO_OUTPUT_FILE)
-              .run();
-          }
-        }
+      recordings.forEach((recordPath)=>{
+        mergeProc.addInput(recordPath)
       });
+
+      mergeProc
+        .output(VIDEO_OUTPUT_FILE)
+        .run();
     }, 1000)
 
     return close.apply(this, arguments);
