@@ -61,7 +61,7 @@ function beforeOffer(peerConnection) {
       });
 
       stream.proc = ffmpeg()
-        .addInput(StreamInput(stream.video).url)
+        .addInput(new StreamInput(stream.video).url)
         .addInputOptions([
           '-f',
           'rawvideo',
@@ -72,7 +72,7 @@ function beforeOffer(peerConnection) {
           '-r',
           '30',
         ])
-        .addInput(StreamInput(stream.audio).url)
+        .addInput(new StreamInput(stream.audio).url)
         .addInputOptions(['-f s16le', '-ar 48k', '-ac 1'])
         .on('start', () => {
           console.log('Start recording >> ', stream.recordPath);
